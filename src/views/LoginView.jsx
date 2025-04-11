@@ -10,9 +10,10 @@ export default function LoginView() {
     e.preventDefault()
     try {
       const { data, status } = await axios.post(`http://localhost:3000/users/`, { username })
-      if (status === 200) {
+      if (status === 200 || status === 201) {
         navigate('/memes');
         localStorage.setItem('username', username);
+        localStorage.setItem('userId', data.id);
       }
     } catch (err) {
       if (err.response?.status === 404) {

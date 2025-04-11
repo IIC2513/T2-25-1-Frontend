@@ -4,59 +4,46 @@ import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faThumbsUp } from '@fortawesome/free-solid-svg-icons'
 
-// Mocked user ID — replace with actual user state
-const currentUserId = 1;
+const currentUserId = localStorage.getItem('userId');
 
 export default function MemeListView() {
   const [memes, setMemes] = useState([])
 
+  const fetchMemes = async () => {
+    try {
+      const res = await axios.get('http://localhost:3000/memes')
+      setMemes(res.data)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
-    axios.get('http://localhost:3000/memes')
-      .then(res => setMemes(res.data))
-      .catch(err => console.error(err))
+    fetchMemes()
   }, [])
 
   const handleLikeToggle = async (meme) => {
     try {
-      if (meme.likedByUser) {
-        // DELETE like
-        await axios.delete(`http://localhost:3000/likes/${meme.likeId}?userId=${currentUserId}`)
-        setMemes((prev) =>
-          prev.map((m) =>
-            m.id === meme.id
-              ? {
-                  ...m,
-                  likedByUser: false,
-                  likeId: null
-                }
-              : m
-          )
-        )
+      const isLiked = await axios.get(`http://localhost:3000/likes?memeId=${meme.id}&userId=${currentUserId}`);
+      if (isLiked.data) {
+        // DELETE /likes/:likeId?userId=...
+        await axios.delete(`http://localhost:3000/likes?memeId=${meme.id}&userId=${currentUserId}`);
+        fetchMemes();
       } else {
-        // POST like
-        const res = await axios.post('http://localhost:3000/likes', {
+        // POST /likes
+        await axios.post('http://localhost:3000/likes', {
           userId: currentUserId,
-          memeId: meme.id
-        })
-        setMemes((prev) =>
-          prev.map((m) =>
-            m.id === meme.id
-              ? {
-                  ...m,
-                  likedByUser: true,
-                  likeId: res.data.id
-                }
-              : m
-          )
-        )
+          memeId: meme.id,
+        });
+        fetchMemes();
       }
     } catch (err) {
-      console.error('Error toggling like:', err.response?.data || err)
+      console.error('Error toggling like:', err.response?.data || err);
     }
-  }
+  };
 
   return (
-    <div className="body memes-column">
+    <div className="body">
       <h2 className="title">Todos los Memes</h2>
       <div className="memes-column-content">
         {memes.map((meme) => (
@@ -67,17 +54,6 @@ export default function MemeListView() {
             <button
               onClick={() => handleLikeToggle(meme)}
               className="meme-likes"
-              style={{
-                color: meme.likedByUser ? 'blue' : '#444',
-                border: 'none',
-                background: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontSize: '1rem',
-                marginTop: '10px'
-              }}
             >
               <FontAwesomeIcon icon={faThumbsUp} />
               {meme.likeCount}
@@ -85,6 +61,9 @@ export default function MemeListView() {
           </div>
         ))}
       </div>
+      <Link to="/top">
+        <button className="back-button">Top Memes</button>
+      </Link>
     </div>
   )
 }
