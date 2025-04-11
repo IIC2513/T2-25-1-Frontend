@@ -4,6 +4,7 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faThumbsUp, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from 'react-router-dom';
+import { getUserName } from '../utils/getUserName';
 
 export default function MemeDetailView() {
   const { id } = useParams();
@@ -16,9 +17,19 @@ export default function MemeDetailView() {
   const fetchMeme = async () => {
     try {
       const res = await axios.get(`http://localhost:3000/memes/${id}`);
+  
+      let userName = '';
+      try {
+        userName = await getUserName(res.data.userId);
+      } catch (err) {
+        userName = 'Usuario desconocido';
+        console.error('Error al obtener el nombre del usuario:', err);
+      }
+  
       setMeme({
         ...res.data,
         likeId: null,
+        userName, // Aquí agregamos el nombre
       });
     } catch (err) {
       console.error(err);
@@ -108,7 +119,7 @@ export default function MemeDetailView() {
 
   return (
     <div className="body">
-      <h2 className="title">{meme.title}</h2>
+      <h2 className="title"><strong>{meme.userName}</strong>: <em>{meme.title}</em></h2>
       {/* Contenedor que coloca la imagen a la izquierda y los comentarios a la derecha */}
       <div className="meme-detail-container">
         <div className="meme-content">
