@@ -3,13 +3,14 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faThumbsUp, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function MemeDetailView() {
   const { id } = useParams();
   const [meme, setMeme] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
+  const navigate = useNavigate();
 
   // Obtener los datos del meme
   const fetchMeme = async () => {
@@ -94,6 +95,15 @@ export default function MemeDetailView() {
     }
   };
 
+  const handleDeleteMeme = async () => {
+    try {
+      await axios.delete(`http://localhost:3000/memes/${meme.id}`);
+      navigate('/memes');
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   if (!meme) return <p>Cargando...</p>;
 
   return (
@@ -115,13 +125,16 @@ export default function MemeDetailView() {
               placeholder="Escribe un comentario..."
             />
             <div className="comment-buttons">
-              <button type="submit">Publicar</button>
+              <button type="submit" className="button">Publicar</button>
               <button
                 onClick={handleLikeToggle}
                 className="meme-likes"
-                >
+              >
                 <FontAwesomeIcon icon={faThumbsUp} />
                 {meme.likeCount}
+              </button>
+              <button onClick={() => handleDeleteMeme()} className="button">
+                <FontAwesomeIcon icon={faTrash} /> Delete
               </button>
             </div>
           </form>
@@ -146,7 +159,7 @@ export default function MemeDetailView() {
         </div>
       </div>
       <Link to={-1}>
-        <button className="back-button">Volver</button>
+        <button className="button">Volver</button>
       </Link>
     </div>
   );
