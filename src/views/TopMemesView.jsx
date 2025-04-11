@@ -97,9 +97,11 @@ export default function TopMemesView() {
               <button onClick={() => handleLikeToggle(meme)} className="meme-likes">
                 <FontAwesomeIcon icon={faThumbsUp} /> {meme.likeCount}
               </button>
-              <button onClick={() => handleDeleteMeme(meme)} className="button">
-                <FontAwesomeIcon icon={faTrash} /> Delete
-              </button>
+              {meme.userId == currentUserId && (
+                <button onClick={() => handleDeleteMeme(meme)} className="button">
+                  <FontAwesomeIcon icon={faTrash} /> Delete
+                </button>
+              )}
             </div>
           </div>
         ))}

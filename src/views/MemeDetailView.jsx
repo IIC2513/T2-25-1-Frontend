@@ -133,9 +133,11 @@ export default function MemeDetailView() {
                 <FontAwesomeIcon icon={faThumbsUp} />
                 {meme.likeCount}
               </button>
-              <button onClick={() => handleDeleteMeme()} className="button">
-                <FontAwesomeIcon icon={faTrash} /> Delete
-              </button>
+              {meme.userId == currentUserId && (
+                <button onClick={() => handleDeleteMeme()} className="button">
+                  <FontAwesomeIcon icon={faTrash} /> Delete
+                </button>
+              )}
             </div>
           </form>
 

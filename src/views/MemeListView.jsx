@@ -12,10 +12,11 @@ export default function MemeListView() {
   const currentUserId = localStorage.getItem('userId');
   const fetchMemes = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/memes')
-      setMemes(res.data)
+      const res = await axios.get('http://localhost:3000/memes');
+      const sortedMemes = res.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setMemes(sortedMemes);
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
   }
 
@@ -99,13 +100,15 @@ export default function MemeListView() {
               <FontAwesomeIcon icon={faThumbsUp} />
               {meme.likeCount}
             </button>
-            <button
-              onClick={() => handleDeleteMeme(meme)}
-              className="button"
-            >
-              <p>Delete</p>
-              <FontAwesomeIcon icon={faTrash} />
-            </button>
+            {meme.userId == currentUserId && (
+              <button
+                onClick={() => handleDeleteMeme(meme)}
+                className="button"
+              >
+                <p>Delete</p>
+                <FontAwesomeIcon icon={faTrash} />
+              </button>
+            )}
           </div>
         ))}
       </div>
