@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faThumbsUp, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { getUserName } from '../utils/getUserName';
+
 
 
 export default function TopMemesView() {
@@ -13,7 +15,19 @@ export default function TopMemesView() {
   const fetchMemes = async () => {
     try {
       const res = await axios.get('http://localhost:3000/memes/sorted');
-      setTopMemes(res.data);
+      const memesWithNames = await Promise.all(
+        res.data.map(async (meme) => {
+          let userName = '';
+          try {
+            userName = await getUserName(meme.userId);
+          } catch (error) {
+            userName = 'Usuario desconocido';
+            console.log('Error fetching user name:', error);
+          }
+          return { ...meme, userName };
+        })
+      );
+      setTopMemes(memesWithNames);
     } catch (err) {
       console.error(err);
     }
@@ -89,7 +103,7 @@ export default function TopMemesView() {
       <div className="memes-column-content">
         {topMemes.map((meme) => (
           <div key={meme.id} className="meme-card">
-            <p className="meme-title">{meme.title}</p>
+            <p className="meme-title"><strong>{meme.userName}</strong>: <em>{meme.title}</em></p>
             <Link to={`/memes/${meme.id}`}>
               <img src={meme.url} alt={meme.title} className="meme-img" />
             </Link>
