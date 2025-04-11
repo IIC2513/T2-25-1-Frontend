@@ -9,15 +9,20 @@ export default function LoginView() {
   const handleLogin = async (e) => {
     e.preventDefault()
     try {
-      await axios.post('https://tu-backend.com/api/login', { username })
-      navigate('/memes')
+      const { data, status } = await axios.post(`http://localhost:3000/users/`, { username })
+      if (status === 200) {
+        navigate('/memes');
+        localStorage.setItem('username', username);
+      }
     } catch (err) {
       if (err.response?.status === 404) {
-        alert('Usuario no encontrado')
+        alert('Usuario no encontrado');
+      } else if (err.response?.status === 400) {
+        alert('Error en la petición');
       } else if (err.response?.status === 500) {
-        alert('Error en el servidor')
+        alert('Error en el servidor');
       } else {
-        alert('Error al iniciar sesión')
+        alert('Error al iniciar sesión');
       }
     }
   }

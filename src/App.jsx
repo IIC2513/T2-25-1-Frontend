@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import LoginView from './views/LoginView'
 import MemeListView from './views/MemeListView'
 import MemeDetailView from './views/MemeDetailView'
