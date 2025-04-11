@@ -4,12 +4,12 @@ import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faThumbsUp, faTrash } from '@fortawesome/free-solid-svg-icons'
 
-const currentUserId = localStorage.getItem('userId');
 
 export default function MemeListView() {
   const [memes, setMemes] = useState([])
   const [isOpen, setIsOpen] = useState(false);
-
+  
+  const currentUserId = localStorage.getItem('userId');
   const fetchMemes = async () => {
     try {
       const res = await axios.get('http://localhost:3000/memes')
@@ -51,6 +51,10 @@ export default function MemeListView() {
 
   const handleDeleteMeme = async (meme) => {
     try {
+      if (meme.userId != currentUserId) {
+        alert('You are not authorized to delete this meme');
+        return;
+      }
       await axios.delete(`http://localhost:3000/memes/${meme.id}`);
       fetchMemes();
     } catch (err) {
